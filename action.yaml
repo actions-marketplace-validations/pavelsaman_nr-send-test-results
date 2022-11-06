@@ -1,5 +1,8 @@
 name: Send test results to New Relic
 description: Send Mocha test results to New Relic Metric API
+branding:
+  icon: arrow-right
+  color: green
 
 inputs:
   new-relic-license-key:
