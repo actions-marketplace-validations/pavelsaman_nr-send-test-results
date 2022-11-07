@@ -72,15 +72,20 @@ const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
 const timestamp = () => Math.round(Date.now() / 1000);
 const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM-DD-HH-mm-ss');
+const isPullRequest = (githubBranch) => githubBranch.includes('refs/pull/');
 function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
 }
 function getCommonGithubProperties() {
+    var _a, _b, _c;
     if (verboseLog) {
         console.log(github.context);
     }
-    const githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
+    let githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
+    if (isPullRequest(githubBranch)) {
+        githubBranch = (_c = (_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.head) === null || _c === void 0 ? void 0 : _c.ref;
+    }
     return {
         metricId,
         'github.branch': githubBranch,

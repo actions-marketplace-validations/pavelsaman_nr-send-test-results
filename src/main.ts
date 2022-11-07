@@ -15,6 +15,7 @@ const jobId = core.getInput('job-id') || github.context.job;
 
 const timestamp = (): number => Math.round(Date.now() / 1000);
 const getFormattedTime = (): string => moment(new Date()).format('YYYY-MM-DD-HH-mm-ss');
+const isPullRequest = (githubBranch: string): boolean => githubBranch.includes('refs/pull/');
 
 function printExitMessage(message: string): void {
   core.warning(
@@ -28,7 +29,10 @@ function getCommonGithubProperties(): CommonGithubProperties {
     console.log(github.context);
   }
 
-  const githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
+  let githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
+  if (isPullRequest(githubBranch)) {
+    githubBranch = github.context.payload?.pull_request?.head?.ref;
+  }
   return {
     metricId,
     'github.branch': githubBranch,
