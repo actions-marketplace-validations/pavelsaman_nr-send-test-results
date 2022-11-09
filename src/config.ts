@@ -1,5 +1,5 @@
 export const config = {
-  metricAPIUrl: 'https://metric-api.eu.newrelic.com/metric/v1',
+  metricAPIUrl: 'https://metric-api.eu.newrelic.com/log/v1',
   axiosTimeoutSec: 10_000,
-  maxMetricsPerRequest: 50,
+  maxMetricsPerRequest: 70,
 };

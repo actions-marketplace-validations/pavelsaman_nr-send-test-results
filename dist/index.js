@@ -9,9 +9,9 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.config = void 0;
 exports.config = {
-    metricAPIUrl: 'https://metric-api.eu.newrelic.com/metric/v1',
+    metricAPIUrl: 'https://metric-api.eu.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
-    maxMetricsPerRequest: 50,
+    maxMetricsPerRequest: 70,
 };
 
 
@@ -66,22 +66,39 @@ const github = __importStar(__nccwpck_require__(5438));
 const artifact = __importStar(__nccwpck_require__(2605));
 const config_1 = __nccwpck_require__(88);
 const metricUrl = config_1.config.metricAPIUrl;
+const metricId = core.getInput('metric-id');
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
 const timestamp = () => Math.round(Date.now() / 1000);
 const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM-DD-HH-mm-ss');
+const isPullRequest = (githubBranch) => githubBranch.includes('refs/pull/');
 function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
 }
-function getCommonAttributes(testResult) {
-    var _a;
+function getCommonGithubProperties() {
+    var _a, _b, _c;
+    if (verboseLog) {
+        console.log(github.context);
+    }
+    let githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
+    if (isPullRequest(githubBranch)) {
+        githubBranch = (_c = (_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.head) === null || _c === void 0 ? void 0 : _c.ref;
+    }
     return {
-        title: testResult.title,
-        fullTitle: testResult.fullTitle,
-        file: testResult.file,
-        testSuite: (_a = testResult.fullTitle) === null || _a === void 0 ? void 0 : _a.replace(testResult.title, '').trim(),
+        metricId,
+        'github.branch': githubBranch,
+        'github.ref': github.context.ref,
+        'github.workflow': github.context.workflow,
+        'github.project': github.context.repo.repo,
+        'github.job': jobId,
+        'github.eventName': github.context.eventName,
+        'github.actor': github.context.actor,
+        'github.runId': github.context.runId,
+        'github.runner.arch': process.env.RUNNER_ARCH,
+        'github.runner.os': process.env.RUNNER_OS,
+        'github.runner.name': process.env.RUNNER_NAME,
     };
 }
 function readResults(fileName) {
@@ -102,46 +119,40 @@ function testResultsAreParsable(data) {
     }
     return true;
 }
-function printFailures(failures) {
-    var _a, _b;
-    let failuresAsString = '';
-    for (const failure of failures) {
-        failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
-    }
-    core.warning(failuresAsString);
-}
 function assembleResults(data) {
     const passedTests = data.passes;
     // "failures" can contain failed tests as well as e.g. failed hooks
     // passes + failures != tests
     const failures = data.failures;
-    printFailures(failures);
-    const durations = [...passedTests, ...failures].map(test => {
-        return {
-            name: `test.case.duration`,
-            type: 'gauge',
-            value: test.duration,
-            timestamp: timestamp(),
-            attributes: Object.assign({}, getCommonAttributes(test)),
-        };
-    });
     const testResults = [...passedTests, ...failures].map(test => {
-        const testReturnValue = Object.keys(test.err).length === 0 ? 0 : 1;
+        var _a, _b, _c;
+        const testCaseExitCode = Object.keys(test.err).length === 0 ? 0 : 1;
+        let stackTrace = {};
+        if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.stack) {
+            stackTrace = {
+                stackTrace: test.err.stack,
+            };
+        }
+        let errorMessage = {};
+        if ((_b = test.err) === null || _b === void 0 ? void 0 : _b.message) {
+            errorMessage = {
+                errorMessage: test.err.message,
+            };
+        }
         return {
-            name: 'test.case.exit.code',
-            type: 'gauge',
-            value: testReturnValue,
-            timestamp: timestamp(),
-            attributes: Object.assign({}, getCommonAttributes(test)),
+            attributes: Object.assign(Object.assign({ title: test.title, fullTitle: test.fullTitle, file: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), 'exit.code': testCaseExitCode, duration: test.duration }, stackTrace), errorMessage),
         };
     });
-    const resultForNR = [...durations, ...testResults];
     // I can get 413 Payload Too Large response code in New Relic
     const metricBuckets = [];
-    while (resultForNR.length > 0) {
+    while (testResults.length > 0) {
         metricBuckets.push([
             {
-                metrics: resultForNR.splice(0, config_1.config.maxMetricsPerRequest),
+                logs: testResults.splice(0, config_1.config.maxMetricsPerRequest),
+                common: {
+                    timestamp: timestamp(),
+                    attributes: getCommonGithubProperties(),
+                },
             },
         ]);
     }

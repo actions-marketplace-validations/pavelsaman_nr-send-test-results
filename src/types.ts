@@ -3,7 +3,7 @@ type ErrorAttributes = {
   message?: string;
 };
 
-export type TestResult = {
+type TestResult = {
   file: string;
   title: string;
   fullTitle: string;
@@ -11,23 +11,45 @@ export type TestResult = {
   err: ErrorAttributes;
 };
 
+type TestResultForNR = {
+  attributes: TestResultAttributesForNR;
+};
+
+type TestResultAttributesForNR = {
+  file: string;
+  title: string;
+  fullTitle: string;
+  testSuite: string;
+  duration: number;
+  'exit.code': number;
+  stackTrace?: string;
+  errorMessage?: string;
+};
+
 export type TestResults = {
   passes: TestResult[];
   failures: TestResult[];
 };
 
-export type CommonProperties = {
-  [index: string]: string | number | undefined;
-};
-
-export type TestResultForNR = {
-  name: string;
-  type: string;
-  value: number;
-  timestamp: number;
-  attributes: CommonProperties;
+export type CommonGithubProperties = {
+  metricId: string;
+  'github.branch': string;
+  'github.ref': string;
+  'github.workflow': string;
+  'github.project': string;
+  'github.job': string;
+  'github.eventName': string;
+  'github.actor': string;
+  'github.runId': number;
+  'github.runner.arch': string | undefined;
+  'github.runner.os': string | undefined;
+  'github.runner.name': string | undefined;
 };
 
 export type TestResultsForNR = {
-  metrics: TestResultForNR[];
+  logs: TestResultForNR[];
+  common: {
+    timestamp: number;
+    attributes: CommonGithubProperties;
+  };
 }[];
