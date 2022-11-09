@@ -22,8 +22,8 @@ type TestResultAttributesForNR = {
   testSuite: string;
   duration: number;
   failed: boolean;
-  stackTrace?: string;
-  errorMessage?: string;
+  'error.message'?: string;
+  'error.stackTrace'?: string;
 };
 
 export type TestResults = {

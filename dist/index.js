@@ -126,13 +126,13 @@ function assembleResults(data) {
         let stackTrace = {};
         if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.stack) {
             stackTrace = {
-                stackTrace: test.err.stack,
+                'error.stackTrace': test.err.stack,
             };
         }
         let errorMessage = {};
         if ((_b = test.err) === null || _b === void 0 ? void 0 : _b.message) {
             errorMessage = {
-                errorMessage: test.err.message,
+                'error.message': test.err.message,
             };
         }
         return {

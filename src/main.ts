@@ -76,14 +76,14 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
     let stackTrace = {};
     if (test.err?.stack) {
       stackTrace = {
-        stackTrace: test.err.stack,
+        'error.stackTrace': test.err.stack,
       };
     }
 
     let errorMessage = {};
     if (test.err?.message) {
       errorMessage = {
-        errorMessage: test.err.message,
+        'error.message': test.err.message,
       };
     }
 
