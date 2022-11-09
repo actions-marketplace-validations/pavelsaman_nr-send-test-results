@@ -102,9 +102,9 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
   });
 
   // I can get 413 Payload Too Large response code in New Relic
-  const logBuckets = [];
+  const buckets = [];
   while (testResults.length > 0) {
-    logBuckets.push([
+    buckets.push([
       {
         logs: testResults.splice(0, config.maxTestCasesPerRequest),
         common: {
@@ -116,7 +116,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
     ]);
   }
 
-  return logBuckets;
+  return buckets;
 }
 
 async function sendResults(resultsForNR: TestResultsForNR[]): Promise<void> {
@@ -125,9 +125,9 @@ async function sendResults(resultsForNR: TestResultsForNR[]): Promise<void> {
     console.log(JSON.stringify(resultsForNR));
   }
 
-  for (const logBucket of resultsForNR) {
+  for (const bucket of resultsForNR) {
     if (verboseLog) {
-      console.log(JSON.stringify(logBucket));
+      console.log(JSON.stringify(bucket));
     }
 
     try {
@@ -137,7 +137,7 @@ async function sendResults(resultsForNR: TestResultsForNR[]): Promise<void> {
         headers: {
           'Api-Key': core.getInput('new-relic-license-key'),
         },
-        data: JSON.stringify(logBucket),
+        data: JSON.stringify(bucket),
         timeout: config.axiosTimeoutSec,
       });
       core.info(`${response.status}\n${JSON.stringify(response.data)}`);
