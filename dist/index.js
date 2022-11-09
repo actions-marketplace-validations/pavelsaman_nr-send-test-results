@@ -11,7 +11,7 @@ exports.config = void 0;
 exports.config = {
     metricAPIUrl: 'https://metric-api.eu.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
-    maxMetricsPerRequest: 70,
+    maxMetricsPerRequest: 2,
 };
 
 
@@ -65,11 +65,10 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const artifact = __importStar(__nccwpck_require__(2605));
 const config_1 = __nccwpck_require__(88);
-const metricUrl = config_1.config.metricAPIUrl;
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
-const timestamp = () => Math.round(Date.now() / 1000);
+const timestamp = () => Math.round(Date.now());
 const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM-DD-HH-mm-ss');
 const isPullRequest = (githubBranch) => githubBranch.includes('refs/pull/');
 function printExitMessage(message) {
@@ -165,7 +164,7 @@ function sendResults(resultsForNR) {
             }
             try {
                 const response = yield (0, axios_1.default)({
-                    url: metricUrl,
+                    url: config_1.config.metricAPIUrl,
                     method: 'POST',
                     headers: {
                         'Api-Key': core.getInput('new-relic-license-key'),

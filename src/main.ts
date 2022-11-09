@@ -7,12 +7,11 @@ import * as artifact from '@actions/artifact';
 import {config} from './config';
 import {TestResults, CommonGithubProperties, TestResultsForNR} from './types';
 
-const metricUrl = config.metricAPIUrl;
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
 
-const timestamp = (): number => Math.round(Date.now() / 1000);
+const timestamp = (): number => Math.round(Date.now());
 const getFormattedTime = (): string => moment(new Date()).format('YYYY-MM-DD-HH-mm-ss');
 const isPullRequest = (githubBranch: string): boolean => githubBranch.includes('refs/pull/');
 
@@ -130,7 +129,7 @@ async function sendResults(resultsForNR: TestResultsForNR[]): Promise<void> {
 
     try {
       const response = await axios({
-        url: metricUrl,
+        url: config.metricAPIUrl,
         method: 'POST',
         headers: {
           'Api-Key': core.getInput('new-relic-license-key'),
