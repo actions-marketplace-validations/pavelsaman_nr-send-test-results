@@ -20,10 +20,6 @@ export type CommonProperties = {
   [index: string]: string | number | undefined;
 };
 
-export type CommonGithubProperties = {
-  [index: string]: string | number | undefined;
-};
-
 export type TestResultForNR = {
   name: string;
   type: string;

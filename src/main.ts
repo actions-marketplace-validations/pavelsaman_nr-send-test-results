@@ -5,48 +5,21 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as artifact from '@actions/artifact';
 import {config} from './config';
-import {TestResult, TestResults, CommonProperties, CommonGithubProperties, TestResultsForNR} from './types';
+import {TestResult, TestResults, CommonProperties, TestResultsForNR} from './types';
 
 const metricUrl = config.metricAPIUrl;
-const metricId = core.getInput('metric-id');
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
 
 const timestamp = (): number => Math.round(Date.now() / 1000);
 const getFormattedTime = (): string => moment(new Date()).format('YYYY-MM-DD-HH-mm-ss');
-const isPullRequest = (githubBranch: string): boolean => githubBranch.includes('refs/pull/');
 
 function printExitMessage(message: string): void {
   core.warning(
     `${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`,
   );
-}
-
-function getCommonGithubProperties(): CommonGithubProperties {
-  if (verboseLog) {
-    console.log(github.context);
-  }
-
-  let githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
-  if (isPullRequest(githubBranch)) {
-    githubBranch = github.context.payload?.pull_request?.head?.ref;
-  }
-  return {
-    metricId,
-    'github.branch': githubBranch,
-    'github.ref': github.context.ref,
-    'github.workflow': github.context.workflow,
-    'github.project': github.context.repo.repo,
-    'github.job': jobId,
-    'github.eventName': github.context.eventName,
-    'github.actor': github.context.actor,
-    'github.runId': github.context.runId,
-    'github.runner.arch': process.env.RUNNER_ARCH,
-    'github.runner.os': process.env.RUNNER_OS,
-    'github.runner.name': process.env.RUNNER_NAME,
-  };
 }
 
 function getCommonAttributes(testResult: TestResult): CommonProperties {
@@ -78,11 +51,20 @@ function testResultsAreParsable(data: TestResults): boolean {
   return true;
 }
 
+function printFailures(failures: TestResult[]): void {
+  let failuresAsString = '';
+  for (const failure of failures) {
+    failuresAsString += `${failure.file}\n${failure.fullTitle}\n${failure.err?.message}\n${failure.err?.stack}\n---\n`;
+  }
+  core.warning(failuresAsString);
+}
+
 function assembleResults(data: TestResults): TestResultsForNR[] {
   const passedTests = data.passes;
   // "failures" can contain failed tests as well as e.g. failed hooks
   // passes + failures != tests
   const failures = data.failures;
+  printFailures(failures);
 
   const durations = [...passedTests, ...failures].map(test => {
     return {
@@ -91,7 +73,6 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
       value: test.duration,
       timestamp: timestamp(),
       attributes: {
-        ...getCommonGithubProperties(),
         ...getCommonAttributes(test),
       },
     };
@@ -100,30 +81,13 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
   const testResults = [...passedTests, ...failures].map(test => {
     const testReturnValue = Object.keys(test.err).length === 0 ? 0 : 1;
 
-    let stackTrace = {};
-    if (test.err?.stack) {
-      stackTrace = {
-        'test.case.stackTrace': test.err.stack,
-      };
-    }
-
-    let errorMessage = {};
-    if (test.err?.message) {
-      errorMessage = {
-        'test.case.errorMessage': test.err.message,
-      };
-    }
-
     return {
       name: 'test.case.exit.code',
       type: 'gauge',
       value: testReturnValue,
       timestamp: timestamp(),
       attributes: {
-        ...getCommonGithubProperties(),
         ...getCommonAttributes(test),
-        ...stackTrace,
-        ...errorMessage,
       },
     };
   });
