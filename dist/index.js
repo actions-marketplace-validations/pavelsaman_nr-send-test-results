@@ -126,17 +126,17 @@ function assembleResults(data) {
         let stackTrace = {};
         if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.stack) {
             stackTrace = {
-                'error.stackTrace': test.err.stack,
+                errorStack: test.err.stack,
             };
         }
         let errorMessage = {};
         if ((_b = test.err) === null || _b === void 0 ? void 0 : _b.message) {
             errorMessage = {
-                'error.message': test.err.message,
+                errorMessage: test.err.message,
             };
         }
         return {
-            attributes: Object.assign(Object.assign({ title: test.title, fullTitle: test.fullTitle, file: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), failedTest: testCaseFailed, duration: test.duration }, stackTrace), errorMessage),
+            attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure: testCaseFailed, testDuration: test.duration }, stackTrace), errorMessage),
         };
     });
     // I can get 413 Payload Too Large response code in New Relic
@@ -146,7 +146,7 @@ function assembleResults(data) {
             {
                 logs: testResults.splice(0, config_1.config.maxTestCasesPerRequest),
                 common: {
-                    logtype: 'test.case',
+                    logType: 'test.case',
                     timestamp: timestamp(),
                     attributes: getCommonGithubProperties(),
                 },

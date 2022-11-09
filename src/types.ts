@@ -16,14 +16,14 @@ type TestResultForNR = {
 };
 
 type TestResultAttributesForNR = {
-  file: string;
-  title: string;
-  fullTitle: string;
+  testFile: string;
   testSuite: string;
-  duration: number;
-  failedTest: boolean;
-  'error.message'?: string;
-  'error.stackTrace'?: string;
+  testTitle: string;
+  testFullTitle: string;
+  testFailure: boolean;
+  testDuration: number;
+  errorMessage?: string;
+  errorStack?: string;
 };
 
 export type TestResults = {
@@ -50,7 +50,7 @@ export type CommonGithubProperties = {
 export type TestResultsForNR = {
   logs: TestResultForNR[];
   common: {
-    logtype: string;
+    logType: string;
     timestamp: number;
     attributes: CommonGithubProperties;
   };

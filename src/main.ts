@@ -76,25 +76,25 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
     let stackTrace = {};
     if (test.err?.stack) {
       stackTrace = {
-        'error.stackTrace': test.err.stack,
+        errorStack: test.err.stack,
       };
     }
 
     let errorMessage = {};
     if (test.err?.message) {
       errorMessage = {
-        'error.message': test.err.message,
+        errorMessage: test.err.message,
       };
     }
 
     return {
       attributes: {
-        title: test.title,
-        fullTitle: test.fullTitle,
-        file: test.file,
+        testFile: test.file,
         testSuite: test.fullTitle?.replace(test.title, '').trim(),
-        failedTest: testCaseFailed,
-        duration: test.duration,
+        testTitle: test.title,
+        testFullTitle: test.fullTitle,
+        testFailure: testCaseFailed,
+        testDuration: test.duration,
         ...stackTrace,
         ...errorMessage,
       },
@@ -108,7 +108,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
       {
         logs: testResults.splice(0, config.maxTestCasesPerRequest),
         common: {
-          logtype: 'test.case',
+          logType: 'test.case',
           timestamp: timestamp(),
           attributes: getCommonGithubProperties(),
         },
