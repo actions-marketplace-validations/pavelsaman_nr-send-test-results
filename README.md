@@ -22,7 +22,7 @@ jobs:
 
 ### new-relic-license-key
 
-New Relic license key for Metric API ingestion
+New Relic license key for ingestion
 
 **Required**: true
 

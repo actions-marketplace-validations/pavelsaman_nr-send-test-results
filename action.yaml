@@ -6,7 +6,7 @@ branding:
 
 inputs:
   new-relic-license-key:
-    description: New Relic API ingest key Metric API
+    description: New Relic API ingest key
     required: true
   test-result-filename:
     description: Filename with test results

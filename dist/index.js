@@ -9,7 +9,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.config = void 0;
 exports.config = {
-    apiUrl: 'https://metric-api.eu.newrelic.com/log/v1',
+    apiUrl: 'https://log-api.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
     maxTestCasesPerRequest: 70,
 };
