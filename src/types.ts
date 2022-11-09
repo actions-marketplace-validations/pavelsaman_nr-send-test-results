@@ -21,7 +21,7 @@ type TestResultAttributesForNR = {
   fullTitle: string;
   testSuite: string;
   duration: number;
-  'exit.code': number;
+  failed: boolean;
   stackTrace?: string;
   errorMessage?: string;
 };
@@ -31,8 +31,8 @@ export type TestResults = {
 };
 
 export type CommonGithubProperties = {
-  'github.branch': string;
-  'github.ref': string;
+  'git.branch': string;
+  'git.ref': string;
   'github.workflow': string;
   'github.project': string;
   'github.job': string;
@@ -47,6 +47,7 @@ export type CommonGithubProperties = {
 export type TestResultsForNR = {
   logs: TestResultForNR[];
   common: {
+    logtype: string;
     timestamp: number;
     attributes: CommonGithubProperties;
   };

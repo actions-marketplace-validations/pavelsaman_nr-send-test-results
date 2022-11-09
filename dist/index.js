@@ -86,8 +86,8 @@ function getCommonGithubProperties() {
         githubBranch = (_c = (_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.head) === null || _c === void 0 ? void 0 : _c.ref;
     }
     return {
-        'github.branch': githubBranch,
-        'github.ref': github.context.ref,
+        'git.branch': githubBranch,
+        'git.ref': github.context.ref,
         'github.workflow': github.context.workflow,
         'github.project': github.context.repo.repo,
         'github.job': jobId,
@@ -120,7 +120,7 @@ function testResultsAreParsable(data) {
 function assembleResults(data) {
     const testResults = data.tests.map(test => {
         var _a, _b, _c;
-        const testCaseExitCode = Object.keys(test.err).length === 0 ? 0 : 1;
+        const testCaseFailed = Object.keys(test.err).length === 0 ? false : true;
         let stackTrace = {};
         if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.stack) {
             stackTrace = {
@@ -134,7 +134,7 @@ function assembleResults(data) {
             };
         }
         return {
-            attributes: Object.assign(Object.assign({ title: test.title, fullTitle: test.fullTitle, file: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), 'exit.code': testCaseExitCode, duration: test.duration }, stackTrace), errorMessage),
+            attributes: Object.assign(Object.assign({ title: test.title, fullTitle: test.fullTitle, file: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), failed: testCaseFailed, duration: test.duration }, stackTrace), errorMessage),
         };
     });
     // I can get 413 Payload Too Large response code in New Relic
@@ -144,6 +144,7 @@ function assembleResults(data) {
             {
                 logs: testResults.splice(0, config_1.config.maxMetricsPerRequest),
                 common: {
+                    logtype: 'test.case',
                     timestamp: timestamp(),
                     attributes: getCommonGithubProperties(),
                 },

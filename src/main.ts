@@ -33,8 +33,8 @@ function getCommonGithubProperties(): CommonGithubProperties {
     githubBranch = github.context.payload?.pull_request?.head?.ref;
   }
   return {
-    'github.branch': githubBranch,
-    'github.ref': github.context.ref,
+    'git.branch': githubBranch,
+    'git.ref': github.context.ref,
     'github.workflow': github.context.workflow,
     'github.project': github.context.repo.repo,
     'github.job': jobId,
@@ -69,7 +69,7 @@ function testResultsAreParsable(data: TestResults): boolean {
 
 function assembleResults(data: TestResults): TestResultsForNR[] {
   const testResults = data.tests.map(test => {
-    const testCaseExitCode = Object.keys(test.err).length === 0 ? 0 : 1;
+    const testCaseFailed = Object.keys(test.err).length === 0 ? false : true;
 
     let stackTrace = {};
     if (test.err?.stack) {
@@ -91,7 +91,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
         fullTitle: test.fullTitle,
         file: test.file,
         testSuite: test.fullTitle?.replace(test.title, '').trim(),
-        'exit.code': testCaseExitCode,
+        failed: testCaseFailed,
         duration: test.duration,
         ...stackTrace,
         ...errorMessage,
@@ -106,6 +106,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
       {
         logs: testResults.splice(0, config.maxMetricsPerRequest),
         common: {
+          logtype: 'test.case',
           timestamp: timestamp(),
           attributes: getCommonGithubProperties(),
         },
