@@ -66,7 +66,6 @@ const github = __importStar(__nccwpck_require__(5438));
 const artifact = __importStar(__nccwpck_require__(2605));
 const config_1 = __nccwpck_require__(88);
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
-const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
 const timestamp = () => Math.round(Date.now());
 const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM-DD-HH-mm-ss');
@@ -78,7 +77,7 @@ function printExitMessage(message) {
 }
 function printFailures(failures) {
     var _a, _b;
-    let failuresAsString = '';
+    let failuresAsString = 'Failed test cases:\n\n';
     for (const failure of failures) {
         failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
     }
@@ -86,9 +85,6 @@ function printFailures(failures) {
 }
 function getGithubProperties() {
     var _a, _b, _c;
-    if (verboseLog) {
-        console.log(github.context);
-    }
     let githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
     if (isPullRequest(githubBranch)) {
         githubBranch = (_c = (_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.head) === null || _c === void 0 ? void 0 : _c.ref;
@@ -113,9 +109,6 @@ function getGithubProperties() {
 function readResults(fileName) {
     try {
         const rawTestResults = fs_1.default.readFileSync(fileName);
-        if (verboseLog) {
-            console.log(rawTestResults.toString());
-        }
         return JSON.parse(rawTestResults.toString());
     }
     catch (err) {
@@ -167,14 +160,7 @@ function assembleResults(data) {
 }
 function sendResults(resultsForNR) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (verboseLog) {
-            console.log(`Sending ${resultsForNR.length} requests to New Relic.`);
-            console.log(JSON.stringify(resultsForNR));
-        }
         for (const bucket of resultsForNR) {
-            if (verboseLog) {
-                console.log(JSON.stringify(bucket));
-            }
             try {
                 const response = yield (0, axios_1.default)({
                     url: config_1.config.apiUrl,
@@ -207,6 +193,8 @@ function uploadTestResultsArtifact(fileName) {
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
+        core.setCommandEcho(verboseLog);
         const fileName = core.getInput('test-result-filename');
         const testResults = readResults(fileName);
         if (!testResults) {
