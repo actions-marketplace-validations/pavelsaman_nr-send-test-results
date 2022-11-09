@@ -76,7 +76,7 @@ function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
 }
-function getCommonGithubProperties() {
+function getGithubProperties() {
     var _a, _b, _c;
     if (verboseLog) {
         console.log(github.context);
@@ -148,7 +148,7 @@ function assembleResults(data) {
                 common: {
                     logType: 'test.case',
                     timestamp: timestamp(),
-                    attributes: getCommonGithubProperties(),
+                    attributes: getGithubProperties(),
                 },
             },
         ]);

@@ -23,7 +23,7 @@ function printExitMessage(message: string): void {
   );
 }
 
-function getCommonGithubProperties(): CommonGithubProperties {
+function getGithubProperties(): CommonGithubProperties {
   if (verboseLog) {
     console.log(github.context);
   }
@@ -32,6 +32,7 @@ function getCommonGithubProperties(): CommonGithubProperties {
   if (isPullRequest(githubBranch)) {
     githubBranch = github.context.payload?.pull_request?.head?.ref;
   }
+
   return {
     'git.branch': githubBranch,
     'git.ref': github.context.ref,
@@ -109,7 +110,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
         common: {
           logType: 'test.case',
           timestamp: timestamp(),
-          attributes: getCommonGithubProperties(),
+          attributes: getGithubProperties(),
         },
       },
     ]);
