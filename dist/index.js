@@ -136,7 +136,7 @@ function assembleResults(data) {
             };
         }
         return {
-            attributes: Object.assign(Object.assign({ title: test.title, fullTitle: test.fullTitle, file: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), failed: testCaseFailed, duration: test.duration }, stackTrace), errorMessage),
+            attributes: Object.assign(Object.assign({ title: test.title, fullTitle: test.fullTitle, file: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), failedTest: testCaseFailed, duration: test.duration }, stackTrace), errorMessage),
         };
     });
     // I can get 413 Payload Too Large response code in New Relic

@@ -93,7 +93,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
         fullTitle: test.fullTitle,
         file: test.file,
         testSuite: test.fullTitle?.replace(test.title, '').trim(),
-        failed: testCaseFailed,
+        failedTest: testCaseFailed,
         duration: test.duration,
         ...stackTrace,
         ...errorMessage,

@@ -21,7 +21,7 @@ type TestResultAttributesForNR = {
   fullTitle: string;
   testSuite: string;
   duration: number;
-  failed: boolean;
+  failedTest: boolean;
   'error.message'?: string;
   'error.stackTrace'?: string;
 };
