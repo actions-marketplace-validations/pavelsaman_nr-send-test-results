@@ -27,8 +27,7 @@ type TestResultAttributesForNR = {
 };
 
 export type TestResults = {
-  passes: TestResult[];
-  failures: TestResult[];
+  tests: TestResult[];
 };
 
 export type CommonGithubProperties = {

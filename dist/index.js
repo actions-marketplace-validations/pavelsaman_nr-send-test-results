@@ -114,17 +114,13 @@ function readResults(fileName) {
     }
 }
 function testResultsAreParsable(data) {
-    if (!data.passes || !data.failures) {
+    if (!data.tests) {
         return false;
     }
     return true;
 }
 function assembleResults(data) {
-    const passedTests = data.passes;
-    // "failures" can contain failed tests as well as e.g. failed hooks
-    // passes + failures != tests
-    const failures = data.failures;
-    const testResults = [...passedTests, ...failures].map(test => {
+    const testResults = data.tests.map(test => {
         var _a, _b, _c;
         const testCaseExitCode = Object.keys(test.err).length === 0 ? 0 : 1;
         let stackTrace = {};

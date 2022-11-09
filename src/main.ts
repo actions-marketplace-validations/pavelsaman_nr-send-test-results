@@ -62,7 +62,7 @@ function readResults(fileName: string): TestResults | undefined {
 }
 
 function testResultsAreParsable(data: TestResults): boolean {
-  if (!data.passes || !data.failures) {
+  if (!data.tests) {
     return false;
   }
 
@@ -70,12 +70,7 @@ function testResultsAreParsable(data: TestResults): boolean {
 }
 
 function assembleResults(data: TestResults): TestResultsForNR[] {
-  const passedTests = data.passes;
-  // "failures" can contain failed tests as well as e.g. failed hooks
-  // passes + failures != tests
-  const failures = data.failures;
-
-  const testResults = [...passedTests, ...failures].map(test => {
+  const testResults = data.tests.map(test => {
     const testCaseExitCode = Object.keys(test.err).length === 0 ? 0 : 1;
 
     let stackTrace = {};
