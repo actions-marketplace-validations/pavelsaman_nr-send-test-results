@@ -30,7 +30,7 @@ export type TestResults = {
   tests: TestResult[];
 };
 
-export type CommonGithubProperties = {
+export type GitHubProperties = {
   'git.branch': string;
   'git.ref': string;
   'git.sha': string;
@@ -52,6 +52,6 @@ export type TestResultsForNR = {
   common: {
     logType: string;
     timestamp: number;
-    attributes: CommonGithubProperties;
+    attributes: GitHubProperties;
   };
 }[];

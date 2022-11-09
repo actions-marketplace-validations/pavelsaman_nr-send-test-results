@@ -5,7 +5,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as artifact from '@actions/artifact';
 import {config} from './config';
-import {TestResult, TestResults, CommonGithubProperties, TestResultsForNR} from './types';
+import {TestResult, TestResults, GitHubProperties, TestResultsForNR} from './types';
 
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
@@ -23,7 +23,7 @@ function printExitMessage(message: string): void {
   );
 }
 
-function getGithubProperties(): CommonGithubProperties {
+function getGithubProperties(): GitHubProperties {
   if (verboseLog) {
     console.log(github.context);
   }
