@@ -33,12 +33,15 @@ export type TestResults = {
 export type CommonGithubProperties = {
   'git.branch': string;
   'git.ref': string;
+  'git.sha': string;
+  'github.action': string;
   'github.workflow': string;
   'github.project': string;
   'github.job': string;
   'github.eventName': string;
   'github.actor': string;
   'github.runId': number;
+  'github.runNumber': number;
   'github.runner.arch': string | undefined;
   'github.runner.os': string | undefined;
   'github.runner.name': string | undefined;
