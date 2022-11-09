@@ -3,14 +3,6 @@ type ErrorAttributes = {
   message?: string;
 };
 
-type TestResult = {
-  file: string;
-  title: string;
-  fullTitle: string;
-  duration: number;
-  err: ErrorAttributes;
-};
-
 type TestResultForNR = {
   attributes: TestResultAttributesForNR;
 };
@@ -24,6 +16,14 @@ type TestResultAttributesForNR = {
   testDuration: number;
   errorMessage?: string;
   errorStack?: string;
+};
+
+export type TestResult = {
+  file: string;
+  title: string;
+  fullTitle: string;
+  duration: number;
+  err: ErrorAttributes;
 };
 
 export type TestResults = {

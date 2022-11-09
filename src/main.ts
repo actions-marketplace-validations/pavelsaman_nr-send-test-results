@@ -5,7 +5,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as artifact from '@actions/artifact';
 import {config} from './config';
-import {TestResults, CommonGithubProperties, TestResultsForNR} from './types';
+import {TestResult, TestResults, CommonGithubProperties, TestResultsForNR} from './types';
 
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
@@ -14,6 +14,7 @@ const jobId = core.getInput('job-id') || github.context.job;
 const timestamp = (): number => Math.round(Date.now());
 const getFormattedTime = (): string => moment(new Date()).format('YYYY-MM-DD-HH-mm-ss');
 const isPullRequest = (githubBranch: string): boolean => githubBranch.includes('refs/pull/');
+const testCaseFailed = (testCase: TestResult): boolean => (Object.keys(testCase.err).length === 0 ? false : true);
 
 function printExitMessage(message: string): void {
   core.warning(
@@ -71,8 +72,6 @@ function testResultsAreParsable(data: TestResults): boolean {
 
 function assembleResults(data: TestResults): TestResultsForNR[] {
   const testResults = data.tests.map(test => {
-    const testFailure = Object.keys(test.err).length === 0 ? false : true;
-
     let errorMessage = {};
     if (test.err?.message) {
       errorMessage = {
@@ -93,7 +92,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
         testSuite: test.fullTitle?.replace(test.title, '').trim(),
         testTitle: test.title,
         testFullTitle: test.fullTitle,
-        testFailure,
+        testFailure: testCaseFailed(test),
         testDuration: test.duration,
         ...stackTrace,
         ...errorMessage,

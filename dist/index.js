@@ -71,6 +71,7 @@ const jobId = core.getInput('job-id') || github.context.job;
 const timestamp = () => Math.round(Date.now());
 const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM-DD-HH-mm-ss');
 const isPullRequest = (githubBranch) => githubBranch.includes('refs/pull/');
+const testCaseFailed = (testCase) => (Object.keys(testCase.err).length === 0 ? false : true);
 function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
@@ -122,7 +123,6 @@ function testResultsAreParsable(data) {
 function assembleResults(data) {
     const testResults = data.tests.map(test => {
         var _a, _b, _c;
-        const testFailure = Object.keys(test.err).length === 0 ? false : true;
         let errorMessage = {};
         if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.message) {
             errorMessage = {
@@ -136,7 +136,7 @@ function assembleResults(data) {
             };
         }
         return {
-            attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure, testDuration: test.duration }, stackTrace), errorMessage),
+            attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure: testCaseFailed(test), testDuration: test.duration }, stackTrace), errorMessage),
         };
     });
     // I can get 413 Payload Too Large response code in New Relic
