@@ -11,7 +11,7 @@ exports.config = void 0;
 exports.config = {
     metricAPIUrl: 'https://metric-api.eu.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
-    maxMetricsPerRequest: 2,
+    maxMetricsPerRequest: 70,
 };
 
 
