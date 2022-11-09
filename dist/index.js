@@ -122,21 +122,21 @@ function testResultsAreParsable(data) {
 function assembleResults(data) {
     const testResults = data.tests.map(test => {
         var _a, _b, _c;
-        const testCaseFailed = Object.keys(test.err).length === 0 ? false : true;
-        let stackTrace = {};
-        if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.stack) {
-            stackTrace = {
-                errorStack: test.err.stack,
-            };
-        }
+        const testFailure = Object.keys(test.err).length === 0 ? false : true;
         let errorMessage = {};
-        if ((_b = test.err) === null || _b === void 0 ? void 0 : _b.message) {
+        if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.message) {
             errorMessage = {
                 errorMessage: test.err.message,
             };
         }
+        let stackTrace = {};
+        if ((_b = test.err) === null || _b === void 0 ? void 0 : _b.stack) {
+            stackTrace = {
+                errorStack: test.err.stack,
+            };
+        }
         return {
-            attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure: testCaseFailed, testDuration: test.duration }, stackTrace), errorMessage),
+            attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure, testDuration: test.duration }, stackTrace), errorMessage),
         };
     });
     // I can get 413 Payload Too Large response code in New Relic

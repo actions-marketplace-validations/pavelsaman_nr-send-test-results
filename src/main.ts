@@ -71,19 +71,19 @@ function testResultsAreParsable(data: TestResults): boolean {
 
 function assembleResults(data: TestResults): TestResultsForNR[] {
   const testResults = data.tests.map(test => {
-    const testCaseFailed = Object.keys(test.err).length === 0 ? false : true;
-
-    let stackTrace = {};
-    if (test.err?.stack) {
-      stackTrace = {
-        errorStack: test.err.stack,
-      };
-    }
+    const testFailure = Object.keys(test.err).length === 0 ? false : true;
 
     let errorMessage = {};
     if (test.err?.message) {
       errorMessage = {
         errorMessage: test.err.message,
+      };
+    }
+
+    let stackTrace = {};
+    if (test.err?.stack) {
+      stackTrace = {
+        errorStack: test.err.stack,
       };
     }
 
@@ -93,7 +93,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
         testSuite: test.fullTitle?.replace(test.title, '').trim(),
         testTitle: test.title,
         testFullTitle: test.fullTitle,
-        testFailure: testCaseFailed,
+        testFailure,
         testDuration: test.duration,
         ...stackTrace,
         ...errorMessage,
