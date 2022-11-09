@@ -16,10 +16,6 @@ inputs:
     description: Whether to fail the pipeline when something goes wrong in this action
     required: false
     default: '0'
-  metric-id:
-    description: Identification of the metric record
-    required: false
-    default: 'test'
   verbose-log:
     description: Print verbose messages to log, useful for debugging
     required: false

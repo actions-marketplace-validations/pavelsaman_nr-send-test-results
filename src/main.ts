@@ -8,7 +8,6 @@ import {config} from './config';
 import {TestResults, CommonGithubProperties, TestResultsForNR} from './types';
 
 const metricUrl = config.metricAPIUrl;
-const metricId = core.getInput('metric-id');
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
@@ -34,7 +33,6 @@ function getCommonGithubProperties(): CommonGithubProperties {
     githubBranch = github.context.payload?.pull_request?.head?.ref;
   }
   return {
-    metricId,
     'github.branch': githubBranch,
     'github.ref': github.context.ref,
     'github.workflow': github.context.workflow,

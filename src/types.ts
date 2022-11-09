@@ -31,7 +31,6 @@ export type TestResults = {
 };
 
 export type CommonGithubProperties = {
-  metricId: string;
   'github.branch': string;
   'github.ref': string;
   'github.workflow': string;

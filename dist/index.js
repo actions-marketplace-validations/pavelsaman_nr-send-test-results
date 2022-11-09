@@ -66,7 +66,6 @@ const github = __importStar(__nccwpck_require__(5438));
 const artifact = __importStar(__nccwpck_require__(2605));
 const config_1 = __nccwpck_require__(88);
 const metricUrl = config_1.config.metricAPIUrl;
-const metricId = core.getInput('metric-id');
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
@@ -87,7 +86,6 @@ function getCommonGithubProperties() {
         githubBranch = (_c = (_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.head) === null || _c === void 0 ? void 0 : _c.ref;
     }
     return {
-        metricId,
         'github.branch': githubBranch,
         'github.ref': github.context.ref,
         'github.workflow': github.context.workflow,
