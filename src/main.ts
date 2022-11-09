@@ -88,6 +88,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
     }
 
     return {
+      message: `nr-send-test-result: test case ${testCaseFailed(test) ? 'FAILED' : 'PASSED'}`,
       attributes: {
         testFile: test.file,
         testSuite: test.fullTitle?.replace(test.title, '').trim(),

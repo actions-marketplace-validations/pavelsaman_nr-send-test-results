@@ -4,6 +4,7 @@ type ErrorAttributes = {
 };
 
 type TestResultForNR = {
+  message: string;
   attributes: TestResultAttributesForNR;
 };
 

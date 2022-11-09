@@ -136,6 +136,7 @@ function assembleResults(data) {
             };
         }
         return {
+            message: `nr-send-test-result: test case ${testCaseFailed(test) ? 'FAILED' : 'PASSED'}`,
             attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure: testCaseFailed(test), testDuration: test.duration }, stackTrace), errorMessage),
         };
     });
