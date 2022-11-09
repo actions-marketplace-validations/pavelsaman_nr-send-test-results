@@ -23,6 +23,14 @@ function printExitMessage(message: string): void {
   );
 }
 
+function printFailures(failures: TestResult[]): void {
+  let failuresAsString = '';
+  for (const failure of failures) {
+    failuresAsString += `${failure.file}\n${failure.fullTitle}\n${failure.err?.message}\n${failure.err?.stack}\n---\n`;
+  }
+  core.error(failuresAsString);
+}
+
 function getGithubProperties(): GitHubProperties {
   if (verboseLog) {
     console.log(github.context);
@@ -72,6 +80,7 @@ function testResultsAreParsable(data: TestResults): boolean {
 }
 
 function assembleResults(data: TestResults): TestResultsForNR[] {
+  printFailures(data.failures);
   const testResults = data.tests.map(test => {
     let errorMessage = {};
     if (test.err?.message) {

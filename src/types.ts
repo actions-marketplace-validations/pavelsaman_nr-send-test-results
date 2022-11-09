@@ -29,6 +29,7 @@ export type TestResult = {
 
 export type TestResults = {
   tests: TestResult[];
+  failures: TestResult[];
 };
 
 export type GitHubProperties = {

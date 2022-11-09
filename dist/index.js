@@ -76,6 +76,14 @@ function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
 }
+function printFailures(failures) {
+    var _a, _b;
+    let failuresAsString = '';
+    for (const failure of failures) {
+        failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
+    }
+    core.error(failuresAsString);
+}
 function getGithubProperties() {
     var _a, _b, _c;
     if (verboseLog) {
@@ -121,6 +129,7 @@ function testResultsAreParsable(data) {
     return true;
 }
 function assembleResults(data) {
+    printFailures(data.failures);
     const testResults = data.tests.map(test => {
         var _a, _b, _c;
         let errorMessage = {};
