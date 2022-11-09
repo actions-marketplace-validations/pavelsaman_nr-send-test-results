@@ -9,9 +9,9 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.config = void 0;
 exports.config = {
-    metricAPIUrl: 'https://metric-api.eu.newrelic.com/log/v1',
+    apiUrl: 'https://metric-api.eu.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
-    maxMetricsPerRequest: 70,
+    maxTestCasesPerRequest: 70,
 };
 
 
@@ -140,11 +140,11 @@ function assembleResults(data) {
         };
     });
     // I can get 413 Payload Too Large response code in New Relic
-    const metricBuckets = [];
+    const logBuckets = [];
     while (testResults.length > 0) {
-        metricBuckets.push([
+        logBuckets.push([
             {
-                logs: testResults.splice(0, config_1.config.maxMetricsPerRequest),
+                logs: testResults.splice(0, config_1.config.maxTestCasesPerRequest),
                 common: {
                     logtype: 'test.case',
                     timestamp: timestamp(),
@@ -153,7 +153,7 @@ function assembleResults(data) {
             },
         ]);
     }
-    return metricBuckets;
+    return logBuckets;
 }
 function sendResults(resultsForNR) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -161,18 +161,18 @@ function sendResults(resultsForNR) {
             console.log(`Sending ${resultsForNR.length} requests to New Relic.`);
             console.log(JSON.stringify(resultsForNR));
         }
-        for (const metricBucket of resultsForNR) {
+        for (const logBucket of resultsForNR) {
             if (verboseLog) {
-                console.log(JSON.stringify(metricBucket));
+                console.log(JSON.stringify(logBucket));
             }
             try {
                 const response = yield (0, axios_1.default)({
-                    url: config_1.config.metricAPIUrl,
+                    url: config_1.config.apiUrl,
                     method: 'POST',
                     headers: {
                         'Api-Key': core.getInput('new-relic-license-key'),
                     },
-                    data: JSON.stringify(metricBucket),
+                    data: JSON.stringify(logBucket),
                     timeout: config_1.config.axiosTimeoutSec,
                 });
                 core.info(`${response.status}\n${JSON.stringify(response.data)}`);
@@ -210,8 +210,8 @@ function run() {
             printExitMessage(`Test data are not in the correct format.`);
             process.exit(desiredExitCode);
         }
-        const metricsForNR = assembleResults(testResults);
-        yield sendResults(metricsForNR);
+        const logsForNR = assembleResults(testResults);
+        yield sendResults(logsForNR);
     });
 }
 run();

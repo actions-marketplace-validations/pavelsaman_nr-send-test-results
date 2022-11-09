@@ -102,11 +102,11 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
   });
 
   // I can get 413 Payload Too Large response code in New Relic
-  const metricBuckets = [];
+  const logBuckets = [];
   while (testResults.length > 0) {
-    metricBuckets.push([
+    logBuckets.push([
       {
-        logs: testResults.splice(0, config.maxMetricsPerRequest),
+        logs: testResults.splice(0, config.maxTestCasesPerRequest),
         common: {
           logtype: 'test.case',
           timestamp: timestamp(),
@@ -116,7 +116,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
     ]);
   }
 
-  return metricBuckets;
+  return logBuckets;
 }
 
 async function sendResults(resultsForNR: TestResultsForNR[]): Promise<void> {
@@ -125,19 +125,19 @@ async function sendResults(resultsForNR: TestResultsForNR[]): Promise<void> {
     console.log(JSON.stringify(resultsForNR));
   }
 
-  for (const metricBucket of resultsForNR) {
+  for (const logBucket of resultsForNR) {
     if (verboseLog) {
-      console.log(JSON.stringify(metricBucket));
+      console.log(JSON.stringify(logBucket));
     }
 
     try {
       const response = await axios({
-        url: config.metricAPIUrl,
+        url: config.apiUrl,
         method: 'POST',
         headers: {
           'Api-Key': core.getInput('new-relic-license-key'),
         },
-        data: JSON.stringify(metricBucket),
+        data: JSON.stringify(logBucket),
         timeout: config.axiosTimeoutSec,
       });
       core.info(`${response.status}\n${JSON.stringify(response.data)}`);
@@ -177,8 +177,8 @@ async function run(): Promise<void> {
     process.exit(desiredExitCode);
   }
 
-  const metricsForNR = assembleResults(testResults);
-  await sendResults(metricsForNR);
+  const logsForNR = assembleResults(testResults);
+  await sendResults(logsForNR);
 }
 
 run();
