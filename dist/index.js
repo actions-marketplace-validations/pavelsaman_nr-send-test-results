@@ -195,6 +195,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
         core.setCommandEcho(verboseLog);
+        console.log('===>');
         const fileName = core.getInput('test-result-filename');
         const testResults = readResults(fileName);
         if (!testResults) {

@@ -156,6 +156,7 @@ async function uploadTestResultsArtifact(fileName: string): Promise<void> {
 async function run(): Promise<void> {
   const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
   core.setCommandEcho(verboseLog);
+  console.log('===>');
 
   const fileName = core.getInput('test-result-filename');
   const testResults = readResults(fileName);
