@@ -2,7 +2,7 @@
 
 ## Description
 
-Send (Mocha) JSON test results to [New Relic Metric API](https://docs.newrelic.com/docs/data-apis/ingest-apis/metric-api/introduction-metric-api/).
+Send (Mocha) JSON test results to [New Relic Log API](https://docs.newrelic.com/docs/logs/log-api/introduction-log-api).
 
 ## Usage
 
