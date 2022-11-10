@@ -19,8 +19,7 @@
     "github",
     "action",
     "new-relic",
-    "test-results",
-    "logs"
+    "test-results"
   ],
   "repository": {
     "type": "git",

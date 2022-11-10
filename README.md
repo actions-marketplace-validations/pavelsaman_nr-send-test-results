@@ -42,16 +42,6 @@ Whether to fail the pipeline if there is a problem - e.g. when `test-result-file
 
 **Default**: `0` (do not fail)
 
-### metric-id
-
-Identification of the metric record.
-
-E.g. a name of a project is a good candidate for this.
-
-**Required**: false
-
-**Default**: `test`
-
 ### verbose-log
 
 If set to `1`, prints more info to stdout - data sent to New Relic, GitHub properties. Useful for debugging only.
