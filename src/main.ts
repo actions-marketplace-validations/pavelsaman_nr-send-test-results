@@ -72,7 +72,7 @@ function readResults(fileName: string): TestResults | undefined {
 }
 
 function testResultsAreParsable(data: TestResults): boolean {
-  if (!data.tests) {
+  if (!data.tests || !data.failures) {
     return false;
   }
 

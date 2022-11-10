@@ -123,7 +123,7 @@ function readResults(fileName) {
     }
 }
 function testResultsAreParsable(data) {
-    if (!data.tests) {
+    if (!data.tests || !data.failures) {
         return false;
     }
     return true;
