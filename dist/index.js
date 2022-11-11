@@ -10,7 +10,7 @@ var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.config = void 0;
 exports.config = {
-    apiUrl: 'https://log-api.newrelic.com/log/v1',
+    apiUrl: 'https://log-api.eu.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
     maxTestCasesPerRequest: 70,
     filePathToProject: (_a = `${process.env.GITHUB_WORKSPACE}/`) !== null && _a !== void 0 ? _a : '',
