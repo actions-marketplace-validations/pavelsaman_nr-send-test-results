@@ -13,7 +13,7 @@ exports.config = {
     axiosTimeoutSec: 10000,
     maxTestCasesPerRequest: 70,
     filePathToProject: '/home/runner/work/slido-api/slido-api/',
-    urlToFileAtCommit: 'https://github.com/sli-do/slido-api/blob/{commit}/{filePath}',
+    urlToFileAtCommit: 'https://github.com/pavelsaman/test-nr/blob/{commit}/{filePath}',
 };
 
 
