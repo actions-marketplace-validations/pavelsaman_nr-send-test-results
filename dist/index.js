@@ -6,14 +6,15 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 "use strict";
 
+var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.config = void 0;
 exports.config = {
-    apiUrl: 'https://log-api.eu.newrelic.com/log/v1',
+    apiUrl: 'https://log-api.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
     maxTestCasesPerRequest: 70,
-    filePathToProject: '/home/runner/work/slido-api/slido-api/',
-    urlToFileAtCommit: 'https://github.com/pavelsaman/test-nr/blob/{commit}/{filePath}',
+    filePathToProject: (_a = `${process.env.GITHUB_WORKSPACE}/`) !== null && _a !== void 0 ? _a : '',
+    urlToFileAtCommit: `${(_b = process.env) === null || _b === void 0 ? void 0 : _b.GITHUB_SERVER_URL}/${(_c = process.env) === null || _c === void 0 ? void 0 : _c.GITHUB_REPOSITORY}/blob/{commit}/{filePath}`,
 };
 
 
@@ -98,7 +99,7 @@ function printFailures(failures) {
             failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
             const filePathWithLink = getFilePathWithLink(failure.file);
             stepSummaryFailures.push([
-                `<a href="${filePathWithLink.fileLink}" target="_blank">${filePathWithLink.filePath}</a>`,
+                `<a href="${filePathWithLink.fileLink}">${filePathWithLink.filePath}</a>`,
                 failure.title,
                 failure.fullTitle,
                 failure.duration.toString(),
