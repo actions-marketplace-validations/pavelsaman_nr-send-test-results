@@ -171,7 +171,7 @@ function testResultsAreParsable(data) {
 function assembleResults(data) {
     /*
      * data.tests - does not contain failures in hooks,
-     *  contains pending tests
+     *  contains pending (skipped) tests
      * data.failures - contains both failed tests and hooks
      * data.pending - skipped tests
      */
