@@ -9,9 +9,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.config = void 0;
 exports.config = {
-    apiUrl: 'https://log-api.eu.newrelic.com/log/v1',
+    apiUrl: 'https://log-api.newrelic.com/log/v1',
     axiosTimeoutSec: 10000,
     maxTestCasesPerRequest: 70,
+    filePathToProject: '/home/runner/work/slido-api/slido-api/',
+    urlToFileAtCommit: 'https://github.com/sli-do/slido-api/blob/{commit}/{filePath}',
 };
 
 
@@ -77,6 +79,13 @@ function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
 }
+function getFilePathWithLink(filePath) {
+    const filePathFromRoot = filePath.replace(config_1.config.filePathToProject, '');
+    return {
+        filePath: filePathFromRoot,
+        fileLink: config_1.config.urlToFileAtCommit.replace('{commit}', github.context.sha).replace('{filePath}', filePathFromRoot),
+    };
+}
 function printFailures(failures) {
     var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
@@ -87,8 +96,9 @@ function printFailures(failures) {
         let failuresAsString = 'Failed test cases:\n\n';
         for (const failure of failures) {
             failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
+            const filePathWithLink = getFilePathWithLink(failure.file);
             stepSummaryFailures.push([
-                failure.file,
+                `\`\`\`[${filePathWithLink.filePath}](${filePathWithLink.fileLink})\`\`\``,
                 failure.title,
                 failure.fullTitle,
                 failure.duration.toString(),

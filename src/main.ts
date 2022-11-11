@@ -5,7 +5,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as artifact from '@actions/artifact';
 import {config} from './config';
-import {TestResult, TestResults, GitHubProperties, TestResultsForNR} from './types';
+import {FilePathWithLink, TestResult, TestResults, GitHubProperties, TestResultsForNR} from './types';
 
 const desiredExitCode = core.getInput('fail-pipeline') === '1' ? 1 : 0;
 const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
@@ -24,6 +24,14 @@ function printExitMessage(message: string): void {
   );
 }
 
+function getFilePathWithLink(filePath: string): FilePathWithLink {
+  const filePathFromRoot = filePath.replace(config.filePathToProject, '');
+  return {
+    filePath: filePathFromRoot,
+    fileLink: config.urlToFileAtCommit.replace('{commit}', github.context.sha).replace('{filePath}', filePathFromRoot),
+  };
+}
+
 async function printFailures(failures: TestResult[]): Promise<void> {
   if (failures.length === 0) {
     return;
@@ -33,8 +41,9 @@ async function printFailures(failures: TestResult[]): Promise<void> {
   let failuresAsString = 'Failed test cases:\n\n';
   for (const failure of failures) {
     failuresAsString += `${failure.file}\n${failure.fullTitle}\n${failure.err?.message}\n${failure.err?.stack}\n---\n`;
+    const filePathWithLink = getFilePathWithLink(failure.file);
     stepSummaryFailures.push([
-      failure.file,
+      `\`\`\`[${filePathWithLink.filePath}](${filePathWithLink.fileLink})\`\`\``,
       failure.title,
       failure.fullTitle,
       failure.duration.toString(),

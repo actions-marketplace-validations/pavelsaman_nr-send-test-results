@@ -19,6 +19,11 @@ type TestResultAttributesForNR = {
   errorStack?: string;
 };
 
+export type FilePathWithLink = {
+  filePath: string;
+  fileLink: string;
+};
+
 export type TestResult = {
   file: string;
   title: string;
