@@ -98,7 +98,8 @@ function printFailures(failures) {
             failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
             const filePathWithLink = getFilePathWithLink(failure.file);
             stepSummaryFailures.push([
-                `\`\`\`[${filePathWithLink.filePath}](${filePathWithLink.fileLink})\`\`\``,
+                filePathWithLink.filePath,
+                filePathWithLink.fileLink,
                 failure.title,
                 failure.fullTitle,
                 failure.duration.toString(),
@@ -111,6 +112,7 @@ function printFailures(failures) {
             .addTable([
             [
                 { data: 'File', header: true },
+                { data: 'Link to file at commit', header: true },
                 { data: 'Test title', header: true },
                 { data: 'Test full title', header: true },
                 { data: 'Test duration [ms]', header: true },
