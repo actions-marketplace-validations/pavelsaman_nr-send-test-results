@@ -16,6 +16,7 @@ const getFormattedTime = (): string => moment(new Date()).format('YYYY-MM-DD-HH-
 const isPullRequest = (githubBranch: string): boolean => githubBranch.startsWith('refs/pull/');
 const isRelease = (githubBranch: string): boolean => githubBranch.startsWith('refs/tags/');
 const testCaseFailed = (testCase: TestResult): boolean => (Object.keys(testCase.err).length === 0 ? false : true);
+const isPending = (testCase: TestResult): boolean => !!testCase.duration;
 
 function printExitMessage(message: string): void {
   core.warning(
@@ -118,10 +119,14 @@ function testResultsAreParsable(data: TestResults): boolean {
 
 function assembleResults(data: TestResults): TestResultsForNR[] {
   /*
-   * data.tests - does not contain failures in hooks
+   * data.tests - does not contain failures in hooks,
+   *  contains pending tests
    * data.failures - contains both failed tests and hooks
+   * data.pending - skipped tests
    */
-  const passedTests = data.tests.filter(test => !testCaseFailed(test));
+  const passedTests = data.tests.filter(test => !testCaseFailed(test) && !isPending(test));
+  const pendingTests = data.tests.filter(test => isPending(test));
+
   const passedTestsNRFormat = passedTests.map(test => {
     return {
       message: `action-nr-test-results: test case PASSED`,
@@ -132,6 +137,20 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
         testFullTitle: test.fullTitle,
         testFailure: false,
         testDuration: test.duration,
+      },
+    };
+  });
+
+  const pendingTestsNRFormat = pendingTests.map(test => {
+    return {
+      message: `action-nr-test-results: test case SKIPPED`,
+      attributes: {
+        testFile: test.file,
+        testSuite: test.fullTitle?.replace(test.title, '').trim(),
+        testTitle: test.title,
+        testFullTitle: test.fullTitle,
+        testFailure: false,
+        testDuration: null,
       },
     };
   });
@@ -152,7 +171,7 @@ function assembleResults(data: TestResults): TestResultsForNR[] {
     };
   });
 
-  const testResults = [...passedTestsNRFormat, ...failuresNRFormat];
+  const testResults = [...passedTestsNRFormat, ...pendingTestsNRFormat, ...failuresNRFormat];
 
   // I can get 413 Payload Too Large response code in New Relic
   const buckets = [];

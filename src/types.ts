@@ -14,7 +14,7 @@ type TestResultAttributesForNR = {
   testTitle: string;
   testFullTitle: string;
   testFailure: boolean;
-  testDuration: number;
+  testDuration: number | null;
   errorMessage?: string;
   errorStack?: string;
 };

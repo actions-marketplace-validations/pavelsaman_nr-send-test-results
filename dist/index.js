@@ -76,6 +76,7 @@ const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM
 const isPullRequest = (githubBranch) => githubBranch.startsWith('refs/pull/');
 const isRelease = (githubBranch) => githubBranch.startsWith('refs/tags/');
 const testCaseFailed = (testCase) => (Object.keys(testCase.err).length === 0 ? false : true);
+const isPending = (testCase) => !!testCase.duration;
 function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
@@ -169,10 +170,13 @@ function testResultsAreParsable(data) {
 }
 function assembleResults(data) {
     /*
-     * data.tests - does not contain failures in hooks
+     * data.tests - does not contain failures in hooks,
+     *  contains pending tests
      * data.failures - contains both failed tests and hooks
+     * data.pending - skipped tests
      */
-    const passedTests = data.tests.filter(test => !testCaseFailed(test));
+    const passedTests = data.tests.filter(test => !testCaseFailed(test) && !isPending(test));
+    const pendingTests = data.tests.filter(test => isPending(test));
     const passedTestsNRFormat = passedTests.map(test => {
         var _a;
         return {
@@ -184,6 +188,20 @@ function assembleResults(data) {
                 testFullTitle: test.fullTitle,
                 testFailure: false,
                 testDuration: test.duration,
+            },
+        };
+    });
+    const pendingTestsNRFormat = pendingTests.map(test => {
+        var _a;
+        return {
+            message: `action-nr-test-results: test case SKIPPED`,
+            attributes: {
+                testFile: test.file,
+                testSuite: (_a = test.fullTitle) === null || _a === void 0 ? void 0 : _a.replace(test.title, '').trim(),
+                testTitle: test.title,
+                testFullTitle: test.fullTitle,
+                testFailure: false,
+                testDuration: null,
             },
         };
     });
@@ -203,7 +221,7 @@ function assembleResults(data) {
             },
         };
     });
-    const testResults = [...passedTestsNRFormat, ...failuresNRFormat];
+    const testResults = [...passedTestsNRFormat, ...pendingTestsNRFormat, ...failuresNRFormat];
     // I can get 413 Payload Too Large response code in New Relic
     const buckets = [];
     while (testResults.length > 0) {
