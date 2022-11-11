@@ -43,8 +43,7 @@ async function printFailures(failures: TestResult[]): Promise<void> {
     failuresAsString += `${failure.file}\n${failure.fullTitle}\n${failure.err?.message}\n${failure.err?.stack}\n---\n`;
     const filePathWithLink = getFilePathWithLink(failure.file);
     stepSummaryFailures.push([
-      filePathWithLink.filePath,
-      filePathWithLink.fileLink,
+      `<a href="${filePathWithLink.fileLink}" target="_blank">${filePathWithLink.filePath}</a>`,
       failure.title,
       failure.fullTitle,
       failure.duration.toString(),
@@ -58,7 +57,6 @@ async function printFailures(failures: TestResult[]): Promise<void> {
     .addTable([
       [
         {data: 'File', header: true},
-        {data: 'Link to file at commit', header: true},
         {data: 'Test title', header: true},
         {data: 'Test full title', header: true},
         {data: 'Test duration [ms]', header: true},
