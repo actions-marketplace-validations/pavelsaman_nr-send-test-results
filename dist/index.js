@@ -76,7 +76,7 @@ const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM
 const isPullRequest = (githubBranch) => githubBranch.startsWith('refs/pull/');
 const isRelease = (githubBranch) => githubBranch.startsWith('refs/tags/');
 const testCaseFailed = (testCase) => (Object.keys(testCase.err).length === 0 ? false : true);
-const isPending = (testCase) => !!testCase.duration;
+const isPending = (testCase) => testCase.duration === undefined;
 function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);

@@ -16,7 +16,7 @@ const getFormattedTime = (): string => moment(new Date()).format('YYYY-MM-DD-HH-
 const isPullRequest = (githubBranch: string): boolean => githubBranch.startsWith('refs/pull/');
 const isRelease = (githubBranch: string): boolean => githubBranch.startsWith('refs/tags/');
 const testCaseFailed = (testCase: TestResult): boolean => (Object.keys(testCase.err).length === 0 ? false : true);
-const isPending = (testCase: TestResult): boolean => !!testCase.duration;
+const isPending = (testCase: TestResult): boolean => testCase.duration === undefined;
 
 function printExitMessage(message: string): void {
   core.warning(
