@@ -70,19 +70,47 @@ const verboseLog = core.getInput('verbose-log') === '1' ? true : false;
 const jobId = core.getInput('job-id') || github.context.job;
 const timestamp = () => Math.round(Date.now());
 const getFormattedTime = () => (0, moment_1.default)(new Date()).format('YYYY-MM-DD-HH-mm-ss');
-const isPullRequest = (githubBranch) => githubBranch.includes('refs/pull/');
+const isPullRequest = (githubBranch) => githubBranch.startsWith('refs/pull/');
+const isRelease = (githubBranch) => githubBranch.startsWith('refs/tags/');
 const testCaseFailed = (testCase) => (Object.keys(testCase.err).length === 0 ? false : true);
 function printExitMessage(message) {
     core.warning(`${github.context.action}: ${message}
     Exiting with exit code of ${desiredExitCode} as per "fail-pipeline" input variable.`);
 }
 function printFailures(failures) {
-    var _a, _b;
-    let failuresAsString = 'Failed test cases:\n\n';
-    for (const failure of failures) {
-        failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
-    }
-    core.error(failuresAsString);
+    var _a, _b, _c, _d;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (failures.length === 0) {
+            return;
+        }
+        const stepSummaryFailures = [];
+        let failuresAsString = 'Failed test cases:\n\n';
+        for (const failure of failures) {
+            failuresAsString += `${failure.file}\n${failure.fullTitle}\n${(_a = failure.err) === null || _a === void 0 ? void 0 : _a.message}\n${(_b = failure.err) === null || _b === void 0 ? void 0 : _b.stack}\n---\n`;
+            stepSummaryFailures.push([
+                failure.file,
+                failure.title,
+                failure.fullTitle,
+                failure.duration.toString(),
+                ((_c = failure.err) === null || _c === void 0 ? void 0 : _c.message) ? (_d = failure.err) === null || _d === void 0 ? void 0 : _d.message : '-',
+            ]);
+        }
+        core.error(failuresAsString);
+        yield core.summary
+            .addHeading(':test_tube: Failed test cases')
+            .addTable([
+            [
+                { data: 'File', header: true },
+                { data: 'Test title', header: true },
+                { data: 'Test full title', header: true },
+                { data: 'Test duration [ms]', header: true },
+                { data: 'Error message', header: true },
+            ],
+            ...stepSummaryFailures,
+        ])
+            .addLink('For overall stats, see NewRelic dashboard', 'https://onenr.io/0nQx34mBBjV')
+            .write();
+    });
 }
 function getGithubProperties() {
     var _a, _b, _c;
@@ -90,7 +118,7 @@ function getGithubProperties() {
         console.log(github.context);
     }
     let githubBranch = github.context.ref.replace(/^refs\/heads\//, '');
-    if (isPullRequest(githubBranch)) {
+    if (isPullRequest(githubBranch) || isRelease(githubBranch)) {
         githubBranch = (_c = (_b = (_a = github.context.payload) === null || _a === void 0 ? void 0 : _a.pull_request) === null || _b === void 0 ? void 0 : _b.head) === null || _c === void 0 ? void 0 : _c.ref;
     }
     return {
@@ -129,26 +157,42 @@ function testResultsAreParsable(data) {
     return true;
 }
 function assembleResults(data) {
-    printFailures(data.failures);
-    const testResults = data.tests.map(test => {
-        var _a, _b, _c;
-        let errorMessage = {};
-        if ((_a = test.err) === null || _a === void 0 ? void 0 : _a.message) {
-            errorMessage = {
-                errorMessage: test.err.message,
-            };
-        }
-        let stackTrace = {};
-        if ((_b = test.err) === null || _b === void 0 ? void 0 : _b.stack) {
-            stackTrace = {
-                errorStack: test.err.stack,
-            };
-        }
+    /*
+     * data.tests - does not contain failures in hooks
+     * data.failures - contains both failed tests and hooks
+     */
+    const passedTests = data.tests.filter(test => !testCaseFailed(test));
+    const passedTestsNRFormat = passedTests.map(test => {
+        var _a;
         return {
-            message: `nr-send-test-result: test case ${testCaseFailed(test) ? 'FAILED' : 'PASSED'}`,
-            attributes: Object.assign(Object.assign({ testFile: test.file, testSuite: (_c = test.fullTitle) === null || _c === void 0 ? void 0 : _c.replace(test.title, '').trim(), testTitle: test.title, testFullTitle: test.fullTitle, testFailure: testCaseFailed(test), testDuration: test.duration }, stackTrace), errorMessage),
+            message: `action-nr-test-results: test case PASSED`,
+            attributes: {
+                testFile: test.file,
+                testSuite: (_a = test.fullTitle) === null || _a === void 0 ? void 0 : _a.replace(test.title, '').trim(),
+                testTitle: test.title,
+                testFullTitle: test.fullTitle,
+                testFailure: false,
+                testDuration: test.duration,
+            },
         };
     });
+    const failuresNRFormat = data.failures.map(test => {
+        var _a, _b, _c;
+        return {
+            message: `action-nr-test-results: test case FAILED`,
+            attributes: {
+                testFile: test.file,
+                testSuite: (_a = test.fullTitle) === null || _a === void 0 ? void 0 : _a.replace(test.title, '').trim(),
+                testTitle: test.title,
+                testFullTitle: test.fullTitle,
+                testFailure: true,
+                testDuration: test.duration,
+                errorMessage: (_b = test.err) === null || _b === void 0 ? void 0 : _b.message,
+                errorStack: (_c = test.err) === null || _c === void 0 ? void 0 : _c.stack,
+            },
+        };
+    });
+    const testResults = [...passedTestsNRFormat, ...failuresNRFormat];
     // I can get 413 Payload Too Large response code in New Relic
     const buckets = [];
     while (testResults.length > 0) {
@@ -220,6 +264,7 @@ function run() {
             printExitMessage(`Test data are not in the correct format.`);
             process.exit(desiredExitCode);
         }
+        yield printFailures(testResults.failures);
         const logsForNR = assembleResults(testResults);
         yield sendResults(logsForNR);
     });
